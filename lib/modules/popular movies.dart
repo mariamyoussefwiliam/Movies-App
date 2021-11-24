@@ -6,18 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_task/cubit/movie_cubit.dart';
 import 'package:movie_task/model/movies.dart';
+import 'package:movie_task/network/constants.dart';
 import 'package:movie_task/network/moviesapi.dart';
 
 import 'details_screen.dart';
 
-class PopularMovies extends StatefulWidget {
-  PopularMovies({Key key,}) : super(key: key);
+class PopularMovies extends StatelessWidget {
+  PopularMovies(bool connected, {Key key}) : super(key: key);
 
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<PopularMovies> {
 
   MoviesService moviesService = MoviesService();
   Future<Movies> movies;
@@ -61,30 +57,51 @@ class _MyHomePageState extends State<PopularMovies> {
         listMovies = state.movies;
       }
 
-      return ConditionalBuilder(
-        condition:listMovies!=null ,
-        builder: (context)=>ListView.separated(
-          controller: scrollController,
-          itemBuilder: (context, index) {
+      return RefreshIndicator(
+        onRefresh: ()async{
+          MoviesCubit.get(context).page=1;
+          BlocProvider.of<MoviesCubit>(context).loadMovies();
+        },
+        child: ConditionalBuilder(
+          condition:connected ,
+          builder:(context)=> ConditionalBuilder(
+            condition:listMovies!=null ,
+            builder: (context)=>ListView.separated(
+              controller: scrollController,
+              itemBuilder: (context, index) {
+                print(listMovies.length);
 
-            if (index < listMovies.length)
-              return MovieItem(listMovies,size);
-            else {
-              Timer(Duration(seconds: 20), () {
-                scrollController
-                    .jumpTo(scrollController.position.maxScrollExtent);
-              });
+                if (index < listMovies.length)
+                  return MovieItem(listMovies,size);
+                else {
+                  Timer(Duration(seconds: 20), () {
+                    scrollController
+                        .jumpTo(scrollController.position.maxScrollExtent);
+                  });
 
-              return _loadingIndicator();
-            }
+                  return _loadingIndicator();
+                }
 
-          },
-          separatorBuilder: (context, index) {
-            return Container();
-          },
-          itemCount: listMovies.length + (isLoading ? 1 : 0),
+              },
+              separatorBuilder: (context, index) {
+                return Container();
+              },
+              itemCount: 1 ,
+            ),
+            fallback: (context)=>Center(child: CircularProgressIndicator(),),
+          ),
+          fallback: (context)=>Center(
+            child: MaterialButton(
+              color: Colors.white,
+              onPressed: (){
+                listMovies.clear();
+                MoviesCubit.get(context).page=1;
+                BlocProvider.of<MoviesCubit>(context).loadMovies();
+              },
+              child: Text("retry",),
+            ),
+          ),
         ),
-        fallback: (context)=>Center(child: CircularProgressIndicator(),),
       );
     });
   }
@@ -99,106 +116,107 @@ class _MyHomePageState extends State<PopularMovies> {
 
   Widget MovieItem(movie,size) {
     return Padding(
-            padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
 
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                    children: [
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Column(
+              children: [
 
 
-                      SizedBox(height: 10.0),
-                      GridView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: ((size.width / 2) / (size
-                                  .height / 2.3))
+                SizedBox(height: 10.0),
+                GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: ((size.width / 2) / (size
+                            .height / 2.3))
+                    ),
+                    itemCount: movie.length,
+                    itemBuilder: (BuildContext context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Description(
+                                    name: listMovies[index].title,
+                                    bannerurl:
+                                    'https://image.tmdb.org/t/p/w500' +
+                                        listMovies[index].backdropPath,
+                                    posterurl:
+                                    'https://image.tmdb.org/t/p/w500' +
+                                        listMovies[index].posterPath,
+                                    description: listMovies[index].overview,
+                                    vote: listMovies[index].voteAverage
+                                        .toString(),
+                                    launch_on: listMovies[index].releaseDate,
+                                  )));
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20.0)
                           ),
-                          itemCount: movie.length,
-                          itemBuilder: (BuildContext context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => Description(
-                                          name: listMovies[index].title,
-                                          bannerurl:
-                                          'https://image.tmdb.org/t/p/w500' +
-                                              listMovies[index].backdropPath,
-                                          posterurl:
-                                          'https://image.tmdb.org/t/p/w500' +
-                                              listMovies[index].posterPath,
-                                          description: listMovies[index].overview,
-                                          vote: listMovies[index].voteAverage
-                                              .toString(),
-                                          launch_on: listMovies[index].releaseDate,
-                                        )));
-                              },
-                              child: Container(
+                          child: Column(
+                            // mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Container(
+                                // height: (size.height/2),
+                                clipBehavior: Clip.hardEdge,
                                 decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20.0)
+                                  borderRadius: BorderRadius.circular(
+                                      20.0),
                                 ),
-                                child: Column(
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Container(
-                                      // height: (size.height/2),
-                                      clipBehavior: Clip.hardEdge,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                            20.0),
-                                      ),
-                                      child: (movie[index].posterPath == null) ?
-                                      Image.asset(
-                                        'images/default movie poster.jpg',
-                                        width: double.infinity,
-                                        height: (size.height / 3.2),
-                                        fit: BoxFit.fill,
-                                      )
-                                          : Image.network(
-                                        'https://image.tmdb.org/t/p/w500${movie[index]
-                                            .posterPath.toString()}'
-                                        , width: double.infinity,
-                                        height: (size.height / 3.2),
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        child: Center(
-                                          child: Text(
-                                            movie[index].title.toString(),
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18),
-                                            textAlign: TextAlign.center,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-
-                                  ],),
+                                child: (movie[index].posterPath == null) ?
+                                Image.asset(
+                                  'images/default movie poster.jpg',
+                                  width: double.infinity,
+                                  height: (size.height / 3.2),
+                                  fit: BoxFit.fill,
+                                )
+                                    : Image.network(
+                                  'https://image.tmdb.org/t/p/w500${movie[index]
+                                      .posterPath.toString()}'
+                                  , width: double.infinity,
+                                  height: (size.height / 3.2),
+                                  fit: BoxFit.fill,
+                                ),
                               ),
-                            );
-                          }
-                      ),
+                              Expanded(
+                                child: Container(
+                                  child: Center(
+                                    child: Text(
+                                      movie[index].title.toString(),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                              )
 
-
-                    ]
+                            ],),
+                        ),
+                      );
+                    }
                 ),
-              ),
-            ),
-          );
-        }
 
+
+
+              ]
+          ),
+        ),
+      ),
+    );
   }
+
+}

@@ -32,6 +32,9 @@ dependencies:
   http: ^0.12.2
   conditional_builder: ^1.0.2
   google_fonts:
+  paging: ^0.1.0
+
+  flutter_offline: ^1.0.0
 
 dev_dependencies:
   flutter_test:
