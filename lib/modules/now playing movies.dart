@@ -12,26 +12,25 @@ import 'package:movie_task/network/moviesapi.dart';
 
 import 'details_screen.dart';
 
-class PopularMovies extends StatefulWidget {
-  PopularMovies(bool connected, {Key key}) : super(key: key);
+class NowPlayingMovies extends StatefulWidget {
+  NowPlayingMovies(bool connected, {Key key}) : super(key: key);
 
   @override
-  _PopularMoviesState createState() => _PopularMoviesState();
+  _TopMoviesState createState() => _TopMoviesState();
 }
 
-class _PopularMoviesState extends State<PopularMovies>  {
+class _TopMoviesState extends State<NowPlayingMovies>  {
   @override
-
   void initState() {
-    super.initState();
 
-    BlocProvider.of<MoviesCubit>(context).loadPopularMovies();
+    super.initState();
+    BlocProvider.of<MoviesCubit>(context).loadNowPlayingMovies();
   }
   MoviesService moviesService = MoviesService();
 
   Future<Movies> movies;
 
-  List<MoviesResults> listMovies;
+  List<MoviesResults> nowPlaylistMovies;
 
   final scrollController = ScrollController();
 
@@ -39,7 +38,7 @@ class _PopularMoviesState extends State<PopularMovies>  {
     scrollController.addListener(() {
       if (scrollController.position.atEdge) {
         if (scrollController.position.pixels != 0) {
-          BlocProvider.of<MoviesCubit>(context).loadPopularMovies();
+          BlocProvider.of<MoviesCubit>(context).loadNowPlayingMovies();
 
         }
       }
@@ -59,56 +58,55 @@ class _PopularMoviesState extends State<PopularMovies>  {
         .size;
 
 
-
     return BlocBuilder<MoviesCubit, MoviesState>(builder: (context, state) {
       setupScrollController(context);
-      if(state is ChangeIndexState&&MoviesCubit.get(context).index==0)
+
+      if(state is ChangeIndexState&&MoviesCubit.get(context).index==2)
       {
-
-        BlocProvider.of<MoviesCubit>(context).loadPopularMovies();
-        MoviesCubit.get(context).popularPage=1;
-        if(listMovies!=null)
-          listMovies.clear();
-
+        message=null;
+        BlocProvider.of<MoviesCubit>(context).loadNowPlayingMovies();
+        MoviesCubit.get(context).nowPlayingPage=1;
+        if(nowPlaylistMovies!=null)
+          nowPlaylistMovies.clear();
 
       }
 
 
-      if (state is PopularMoviesLoading && state.isFirstFetch) {
+
+      if (state is NowPlayingMoviesLoading && state.isFirstFetch  ) {
         return _loadingIndicator();
       }
 
-      if (state is PopularMoviesLoading ) {
-        listMovies = state.oldMovies;
+      if (state is NowPlayingMoviesLoading) {
+        nowPlaylistMovies = state.oldMovies;
         isLoading = true;
-      } else if (state is PopularMoviesLoaded ){
-        listMovies = state.movies;
+      } else if (state is NowPlayingMoviesLoaded) {
+        nowPlaylistMovies = state.movies;
       }
-      if(state is PopularMoviesError)
-        {
-          message=state.error;
-        }
+      if(state is NowPlayingMoviesError)
+      {
+        message=state.error;
+      }
 
       return RefreshIndicator(
-
         onRefresh: ()async{
-          MoviesCubit.get(context).popularPage=1;
-          BlocProvider.of<MoviesCubit>(context).loadPopularMovies();
-          listMovies.clear();
+          MoviesCubit.get(context).nowPlayingPage=1;
+          BlocProvider.of<MoviesCubit>(context).loadNowPlayingMovies();
+          nowPlaylistMovies.clear();
         },
         child: ConditionalBuilder(
           condition: message==null,
           builder:(context)=> ConditionalBuilder(
             condition:connected ,
             builder:(context)=> ConditionalBuilder(
-              condition:listMovies!=null ,
+              condition:nowPlaylistMovies!=null ,
               builder: (context)=>ListView.separated(
                 controller: scrollController,
                 itemBuilder: (context, index) {
-                  print(listMovies.length);
+                  print(nowPlaylistMovies.length);
 
-                  if (index < listMovies.length)
-                    return MovieItem(listMovies,size);
+                  if (index < nowPlaylistMovies.length)
+                    return MovieItem(nowPlaylistMovies,size);
                   else {
                     Timer(Duration(seconds: 20), () {
                       scrollController
@@ -133,16 +131,16 @@ class _PopularMoviesState extends State<PopularMovies>  {
 
                   emptyPage(
                       context: context,
-                      image:"assets/no internet.png",
+                      image:"assets/no internet.gif",
                       text: message??"Ouhh...Your're offline"),
                   MaterialButton(
                     color: Colors.white,
                     onPressed: (){
 
-                      MoviesCubit.get(context).popularPage=1;
-                      BlocProvider.of<MoviesCubit>(context).loadPopularMovies();
-                      if(listMovies!=null)
-                      listMovies.clear();
+                      MoviesCubit.get(context).topPage=1;
+                      BlocProvider.of<MoviesCubit>(context).loadNowPlayingMovies();
+                      if(nowPlaylistMovies!=null)
+                        nowPlaylistMovies.clear();
                     },
                     child: Text("retry",),
                   ),
@@ -168,23 +166,22 @@ class _PopularMoviesState extends State<PopularMovies>  {
                   child:InkWell(
                     onTap: (){
                       message=null;
-                      MoviesCubit.get(context).popularPage=1;
-                      BlocProvider.of<MoviesCubit>(context).loadPopularMovies();
-                      if(listMovies!=null)
-                        listMovies.clear();
+                      MoviesCubit.get(context).nowPlayingPage=1;
+                      BlocProvider.of<MoviesCubit>(context).loadNowPlayingMovies();
+                      if(nowPlaylistMovies!=null)
+                        nowPlaylistMovies.clear();
                     },
                     child: Text("RETRY",
                       textAlign: TextAlign.center,
 
                       style: TextStyle(
 
-                      color: Colors.redAccent,
-                      fontSize: 20,
+                        color: Colors.redAccent,
+                        fontSize: 20,
 
 
-                    ),),
+                      ),),
                   ),
-
                 ),
                 SizedBox(height: 60,)
               ],
@@ -232,17 +229,17 @@ class _PopularMoviesState extends State<PopularMovies>  {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => Description(
-                                    name: listMovies[index].title,
+                                    name: nowPlaylistMovies[index].title,
                                     bannerurl:
                                     'https://image.tmdb.org/t/p/w500' +
-                                        listMovies[index].backdropPath,
+                                        nowPlaylistMovies[index].backdropPath,
                                     posterurl:
                                     'https://image.tmdb.org/t/p/w500' +
-                                        listMovies[index].posterPath,
-                                    description: listMovies[index].overview,
-                                    vote: listMovies[index].voteAverage
+                                        nowPlaylistMovies[index].posterPath,
+                                    description: nowPlaylistMovies[index].overview,
+                                    vote: nowPlaylistMovies[index].voteAverage
                                         .toString(),
-                                    launch_on: listMovies[index].releaseDate,
+                                    launch_on: nowPlaylistMovies[index].releaseDate,
                                   )));
                         },
                         child: Container(

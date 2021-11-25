@@ -4,8 +4,10 @@ import 'package:movie_task/cubit/movie_cubit.dart';
 import 'package:movie_task/layout/home_layout.dart';
 
 import 'network/moviesapi.dart';
+import 'network/obsever.dart';
 
 void main() {
+  Bloc.observer = MyBlocObserver();
   runApp(MyApp(
 repository: MoviesService(),
   ));
