@@ -70,3 +70,30 @@ class ChangeIndexState extends MoviesState
 {
 
 }
+
+class CreateDatabaseState extends MoviesState
+{
+
+}
+
+class InsertDataIntoDatabaseState extends MoviesState
+{
+
+}
+
+class GetDataFromDatabaseState extends MoviesState
+{
+
+}
+class UpdateState extends MoviesState
+{
+
+}
+class DeleteState extends MoviesState
+{
+
+}
+class LoadingState extends MoviesState
+{
+
+}

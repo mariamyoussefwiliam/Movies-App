@@ -18,6 +18,7 @@ class APIResult {
 }
 
 class MoviesService {
+
   Future<APIResult> popularMovies(int page) async {
     APIResult result = APIResult();
     Movies movieList = Movies();
@@ -28,8 +29,10 @@ class MoviesService {
 
       if (response.statusCode == 200) {
         movieList = Movies.fromJson(jsonDecode(response.body));
+
         result.hasError = false;
         result.data = movieList;
+
       } else if (response.statusCode == 401) {
         invalidApi = InvalidApi.fromJson(jsonDecode(response.body));
         result.hasError = true;

@@ -103,34 +103,6 @@ class MoviesResults {
 }
 
 class Movies {
-/*
-{
-  "page": 1,
-  "results": [
-    {
-      "adult": false,
-      "backdrop_path": "/pUc51UUQb1lMLVVkDCaZVsCo37U.jpg",
-      "genre_ids": [
-        53
-      ],
-      "id": 482373,
-      "original_language": "en",
-      "original_title": "Don't Breathe 2",
-      "overview": "The Blind Man has been hiding out for several years in an isolated cabin and has taken in and raised a young girl orphaned from a devastating house fire. Their quiet life together is shattered when a group of criminals kidnap the girl, forcing the Blind Man to leave his safe haven to save her.",
-      "popularity": 3850.271,
-      "poster_path": "/hRMfgGFRAZIlvwVWy8DYJdLTpvN.jpg",
-      "release_date": "2021-08-12",
-      "title": "Don't Breathe 2",
-      "video": false,
-      "vote_average": 7.7,
-      "vote_count": 354
-    }
-  ],
-  "total_pages": 500,
-  "total_results": 10000
-}
-*/
-
   int page;
   List<MoviesResults> results;
   int totalPages;

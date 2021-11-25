@@ -72,7 +72,7 @@ class _TopMoviesState extends State<TopMovies>  {
 
 
       if (state is TopMoviesLoading && state.isFirstFetch) {
-        return _loadingIndicator();
+        return loadingIndicator();
       }
 
       if (state is TopMoviesLoading) {
@@ -104,14 +104,14 @@ class _TopMoviesState extends State<TopMovies>  {
                   print(toplistMovies.length);
 
                   if (index < toplistMovies.length)
-                    return MovieItem(toplistMovies,size);
+                    return MovieItem(toplistMovies,size,"top",context);
                   else {
                     Timer(Duration(seconds: 20), () {
                       scrollController
                           .jumpTo(scrollController.position.maxScrollExtent);
                     });
 
-                    return _loadingIndicator();
+                    return loadingIndicator();
                   }
 
                 },
@@ -154,7 +154,7 @@ class _TopMoviesState extends State<TopMovies>  {
 
                 emptyPage(
                     context: context,
-                    image:"assets/no internet.png",
+                    image:"assets/no internet.jpg",
                     text: message??"Ouhh...Your're offline"),
                 SizedBox(height: 50,),
                 Container(
@@ -190,116 +190,6 @@ class _TopMoviesState extends State<TopMovies>  {
     });
   }
 
-  Widget _loadingIndicator() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Center(child: CircularProgressIndicator()),
-    );
-  }
 
-  Widget MovieItem(movie,size) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Column(
-              children: [
-
-
-                SizedBox(height: 10.0),
-                GridView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: ((size.width / 2) / (size
-                            .height / 2.3))
-                    ),
-                    itemCount: movie.length,
-                    itemBuilder: (BuildContext context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Description(
-                                    name: toplistMovies[index].title,
-                                    bannerurl:
-                                    'https://image.tmdb.org/t/p/w500' +
-                                        toplistMovies[index].backdropPath,
-                                    posterurl:
-                                    'https://image.tmdb.org/t/p/w500' +
-                                        toplistMovies[index].posterPath,
-                                    description: toplistMovies[index].overview,
-                                    vote: toplistMovies[index].voteAverage
-                                        .toString(),
-                                    launch_on: toplistMovies[index].releaseDate,
-                                  )));
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20.0)
-                          ),
-                          child: Column(
-                            // mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Container(
-                                // height: (size.height/2),
-                                clipBehavior: Clip.hardEdge,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                      20.0),
-                                ),
-                                child: (movie[index].posterPath == null) ?
-                                Image.asset(
-                                  'images/default movie poster.jpg',
-                                  width: double.infinity,
-                                  height: (size.height / 3.2),
-                                  fit: BoxFit.fill,
-                                )
-                                    : Image.network(
-                                  'https://image.tmdb.org/t/p/w500${movie[index]
-                                      .posterPath.toString()}'
-                                  , width: double.infinity,
-                                  height: (size.height / 3.2),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  child: Center(
-                                    child: Text(
-                                      movie[index].title.toString(),
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18),
-                                      textAlign: TextAlign.center,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ),
-                              )
-
-                            ],),
-                        ),
-                      );
-                    }
-                ),
-
-
-
-              ]
-          ),
-        ),
-      ),
-    );
-  }
 
 }

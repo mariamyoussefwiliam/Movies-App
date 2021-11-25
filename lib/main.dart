@@ -25,7 +25,8 @@ class MyApp extends StatelessWidget {
 
 
       home: BlocProvider(
-          create:  (context) => MoviesCubit(repository),
+          create:  (context) => MoviesCubit(repository)..createDatabase(),
+
           child: HomeLayout()),
     );
   }
