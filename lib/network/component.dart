@@ -63,7 +63,7 @@ Widget MovieItem(listMovies,size,movieType,context)  {
 
 
     }
-  else if(movieType=="top"&&MoviesCubit.get(context).top.isEmpty)
+   if(movieType=="top"&&MoviesCubit.get(context).top.isEmpty)
   {
 
     list.forEach((element)async{
@@ -74,7 +74,7 @@ Widget MovieItem(listMovies,size,movieType,context)  {
 
 
   }
-  else if(movieType=="now"&&MoviesCubit.get(context).now.isEmpty)
+   if(movieType=="now"&&MoviesCubit.get(context).now.isEmpty)
   {
 
     list.forEach((element)async{

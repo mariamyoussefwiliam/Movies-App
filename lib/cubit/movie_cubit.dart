@@ -24,7 +24,11 @@ class MoviesCubit extends Cubit<MoviesState> {
       if(state is PopularMoviesLoading||state is PopularMoviesLoaded || state is TopMoviesLoading||state is TopMoviesLoaded|| state is NowPlayingMoviesLoading||state is NowPlayingMoviesLoaded)
 
         {
-           currentState = state;
+          if(state is !UpdateState)
+            {
+              currentState = state;
+            }
+
         }
 
 
