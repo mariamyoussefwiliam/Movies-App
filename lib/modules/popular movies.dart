@@ -138,16 +138,31 @@ class _PopularMoviesState extends State<PopularMovies>  {
                       context: context,
                       image:"assets/no internet.jpg",
                       text: message??"Ouhh...Your're offline"),
-                  MaterialButton(
-                    color: Colors.white,
-                    onPressed: (){
+                  SizedBox(height: 50,),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child:InkWell(
+                      onTap: (){
+                        message=null;
+                        MoviesCubit.get(context).popularPage=1;
+                        BlocProvider.of<MoviesCubit>(context).loadPopularMovies();
+                        if(listMovies!=null)
+                          listMovies.clear();
+                      },
+                      child: Text("RETRY",
+                        textAlign: TextAlign.center,
 
-                      MoviesCubit.get(context).popularPage=1;
-                      BlocProvider.of<MoviesCubit>(context).loadPopularMovies();
-                      if(listMovies!=null)
-                      listMovies.clear();
-                    },
-                    child: Text("retry",),
+                        style: TextStyle(
+
+                          color: Colors.redAccent,
+                          fontSize: 20,
+
+
+                        ),),
+                    ),
+
                   ),
                   SizedBox(height: 60,)
                 ],

@@ -133,16 +133,30 @@ class _TopMoviesState extends State<NowPlayingMovies>  {
                       context: context,
                       image:"assets/no internet.jpg",
                       text: message??"Ouhh...Your're offline"),
-                  MaterialButton(
-                    color: Colors.white,
-                    onPressed: (){
+                  SizedBox(height: 50,),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child:InkWell(
+                      onTap: (){
+                        message=null;
+                        MoviesCubit.get(context).nowPlayingPage=1;
+                        BlocProvider.of<MoviesCubit>(context).loadNowPlayingMovies();
+                        if(nowPlaylistMovies!=null)
+                          nowPlaylistMovies.clear();
+                      },
+                      child: Text("RETRY",
+                        textAlign: TextAlign.center,
 
-                      MoviesCubit.get(context).topPage=1;
-                      BlocProvider.of<MoviesCubit>(context).loadNowPlayingMovies();
-                      if(nowPlaylistMovies!=null)
-                        nowPlaylistMovies.clear();
-                    },
-                    child: Text("retry",),
+                        style: TextStyle(
+
+                          color: Colors.redAccent,
+                          fontSize: 20,
+
+
+                        ),),
+                    ),
                   ),
                   SizedBox(height: 60,)
                 ],
